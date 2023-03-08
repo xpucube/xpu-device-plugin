@@ -1,0 +1,32 @@
+apiVersion: batch/v1
+kind: Job
+
+metadata:
+  name: xpu-sam
+  namespace: default
+
+spec:
+  template:
+    spec:
+      containers:
+      - name: xpu-sam
+        securityContext:
+          privileged: true
+          capabilities:
+            add: ["SYS_PTRACE"]
+        command: ["/bin/bash", "-c", "cd /data/tensorflow/alexnet; python alexnet_benchmark.py"]
+        env:
+        - name: PATH
+          value: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        image: registry.cn-beijing.aliyuncs.com/yoyoworks/tf-example:v1.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: "4"
+            memory: 8Gi
+            openxpu.com/xpu-shares: 2
+          requests:
+            cpu: "4"
+            memory: 8Gi 
+            openxpu.com/xpu-shares: 2
+      restartPolicy: Never
